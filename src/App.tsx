@@ -1,24 +1,60 @@
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import MyNavBar from './components/nav/index';
+import { useState } from 'react';
+import User from './models/User';
+import SignInForm from './components/User/SignInForm';
+import SignUpForm from './components/User/SignUpForm';
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { GHRepositories } from './components/GHRepositories';
 
 function App() {
+  const [user, setUser] = useState(new User());
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <MyNavBar onLogOut={(userAuth) => {
+          setUser(userAuth)
+        }}
+          user={user} />
+        <Switch>
+          {
+            user.isAuth
+              ?
+              <Route
+                exact
+                path="/"
+                render={(props) => {
+                  return (
+                    <GHRepositories user={user}/>
+                  )
+                }}
+              />
+              :
+              <React.Fragment>
+                <Route
+                  exact
+                  path="/"
+                  render={(props) => {
+                    return (
+                      <SignInForm onAuth={(userAuth) => {
+                        setUser(userAuth)
+                      }} />
+                    )
+                  }}
+                />
+                <Route
+                  exact
+                  path="/signup"
+                  render={(props) => {
+                    return (
+                      <SignUpForm />
+                    )
+                  }}
+                />
+              </React.Fragment>
+          }
+        </Switch>
+      </BrowserRouter>
     </div>
   );
 }
